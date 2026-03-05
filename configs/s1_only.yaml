@@ -1,0 +1,60 @@
+# Baseline: S1 only
+deterministic: false
+results_root: results
+seed: 0
+run_name: film_smp_s1only_seed0
+data:
+  root: data
+  aef_year: any
+  patch_size: 512
+  use_s2: false
+  use_s1: true
+  use_aef: false
+split:
+  type: iid
+  ratios: [0.7, 0.1, 0.2]
+  seed: 0
+normalization:
+  compute_stats: true
+  stats_max_chips: 50
+  max_pixels: 500000
+augment:
+  enabled: true
+  hflip: true
+  vflip: true
+  rot90: true
+  gaussian_noise: 0.02
+model:
+  name: film_smp
+  encoder_name: resnet34
+  encoder_weights: imagenet
+  decoder_attention_type: scse
+loss:
+  name: bce_lovasz
+  bce_weight: 0.3
+  lovasz_weight: 0.7
+metrics:
+  threshold: 0.5
+scheduler:
+  name: cosine
+  eta_min: 0.000001
+optim:
+  lr: 0.001
+  weight_decay: 0.0001
+  encoder_lr_scale: 0.1
+train:
+  device: cuda
+  amp: true
+  allow_tf32: true
+  epochs: 300
+  save_every: 10
+  early_stop:
+    enabled: true
+    patience: 50
+    metric: global_dice
+    mode: max
+dataloader:
+  batch_size: 32
+  num_workers: 8
+  prefetch_factor: 4
+  persistent_workers: true
